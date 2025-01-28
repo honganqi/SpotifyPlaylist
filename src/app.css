@@ -1,0 +1,27 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+h1 { font-size: 1.3rem; font-weight: bold; }
+h2 { font-size: 1.1rem; font-weight: bold; }
+
+header { background-color: #000; }
+aside { background-color: #121212; }
+
+aside li a { padding: 1rem 2rem; display: block; }
+aside li a:hover { background-color: #232323; }
+main a:hover { text-decoration: hover; }
+
+#loadingOverlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	--size: 100px;
+	background: rgba(0,0,0,0.6);
+	z-index: 9999;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
