@@ -2,7 +2,7 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-h1 { font-size: 1.3rem; font-weight: bold; }
+h1 { font-size: 1.3rem; font-weight: bold; align-items: center; display: flex; gap: 0.5rem; }
 h2 { font-size: 1.1rem; font-weight: bold; }
 
 header { background-color: #000; }

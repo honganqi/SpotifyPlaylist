@@ -54,7 +54,6 @@ async function refreshToken(refreshToken) {
 }
 
 async function requestToken(code) {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
     try {
         const res = await fetch('https://accounts.spotify.com/api/token', {
             method: "POST",
@@ -102,7 +101,7 @@ export const load: PageServerLoad = async ({ params, url, cookies }) => {
         const code = returnData.get('code');
 
         /**
-         * for this project, no need to check state because security is not needed (unpublised project)
+         * for this project, no need to check state because security is not needed (unpublished project)
          */
         const state = returnData.get('state');
 

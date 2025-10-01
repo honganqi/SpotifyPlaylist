@@ -35,8 +35,6 @@ async function fetchAllPlaylists(playlistIds, access_token) {
 
 export const load: PageServerLoad = async ({ locals, params }) => {
     if (playlistIds.length) {
-        console.log(playlistIds);
-    
         const trackChecklist = await fetchAllPlaylists(playlistIds, locals.access_token);
     
         return {
