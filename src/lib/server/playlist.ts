@@ -126,3 +126,28 @@ export async function reorder() {
      * }
      */
 }
+
+export async function getAllGenshin(playlistIds, access_token) {
+    // Create an array of promises
+    const fetchPromises = playlistIds.map(async (playlistItem) => {
+        const playlistObj = await getInfo(playlistItem.id, access_token);
+        if (playlistItem.id == "4DMCvxOyFqjIZouFX0lWhF") {
+            sort(playlistItem.id)
+        }
+
+        return {
+            name: playlistObj.info.name,
+            id: playlistObj.info.id,
+            image: playlistObj.info.image,
+            ownerUrl: playlistObj.info.ownerUrl,
+            ownerName: playlistObj.info.ownerName,
+            total: playlistObj.info.total
+
+        };
+    });
+
+    // Wait for all promises to resolve
+    const results = await Promise.all(fetchPromises);
+
+    return results;
+}

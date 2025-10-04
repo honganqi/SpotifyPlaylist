@@ -95,15 +95,16 @@ async function requestToken(code) {
 }
 
 export const load: PageServerLoad = async ({ params, url, cookies }) => {
-    let returnData;
-    if (url.searchParams) {
-        returnData = url.searchParams;
-        const code = returnData.get('code');
+    // FOR THIS DEMO, ALL COMMENTED CODE IN THIS FUNCTION IS FOR THE PURPOSE OF BYPASSING USER LOGIN AND GETTING THE GENSHIN ACCESS TOKEN DIRECTLY INSTEAD
+    // let returnData;
+    // if (url.searchParams) {
+    //     returnData = url.searchParams;
+    //     const code = returnData.get('code');
 
-        /**
-         * for this project, no need to check state because security is not needed (unpublished project)
-         */
-        const state = returnData.get('state');
+    //     /**
+    //      * for this project, no need to check state because security is not needed (unpublised project)
+    //      */
+    //     const state = returnData.get('state');
 
         const refreshTokenEnv = env.REFRESH_TOKEN;
         if (refreshTokenEnv) {
@@ -119,18 +120,18 @@ export const load: PageServerLoad = async ({ params, url, cookies }) => {
             }
         }
 
-        const data = await requestToken(code);
-        if (data.authenticated) {
-            // update ENV file with refresh token
-            await updateEnvFile('REFRESH_TOKEN', data.refresh_token);
-            const meData = await api('https://api.spotify.com/v1/me', data.access_token);
-            cookies.set('access_token', data.access_token, { path: '/' });
-            cookies.set('owner', meData.display_name, { path: '/' });
-            throw redirect(302, '/');
-        }
+        // const data = await requestToken(code);
+        // if (data.authenticated) {
+        //     // update ENV file with refresh token
+        //     await updateEnvFile('REFRESH_TOKEN', data.refresh_token);
+        //     const meData = await api('https://api.spotify.com/v1/me', data.access_token);
+        //     cookies.set('access_token', data.access_token, { path: '/' });
+        //     cookies.set('owner', meData.display_name, { path: '/' });
+        //     throw redirect(302, '/');
+        // }
         
         return { authenticated: false }
-    }
+    // }
 }
 
 async function updateEnvFile(key, value) {

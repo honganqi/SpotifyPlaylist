@@ -23,4 +23,3 @@ vite.config.ts.timestamp-*
 
 src/routes/api/updateCreds/config.json
 creds/config.json
-src/lib/data/playlists.js

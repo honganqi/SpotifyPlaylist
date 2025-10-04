@@ -23,6 +23,6 @@ function createLink() {
 export const load: PageServerLoad = ({ cookies }) => {
     const authLink = cookies.get('access_token') ? null : createLink();
     return  {
-        authLink
+        authLink: null  // disable auto-sign in for this demo if not signed in to Spotify
     }
 }

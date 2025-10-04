@@ -24,7 +24,7 @@ export const load: PageServerLoad = ({ params, locals, cookies }) => {
     const authLink = cookies.get('access_token') ? null : createLink();
     const username = cookies.get('owner') ? cookies.get('owner') : '';
     return  {
-        authLink,
+        authLink: null, // disable auto-sign in for this demo if not signed in to Spotify
         username
     }
 }
