@@ -1,5 +1,6 @@
 import type { PageServerLoad } from "./$types.js";
 import { env } from "$env/dynamic/private";
+import { redirect } from "@sveltejs/kit";
 
 function createLink() {
     const base = 'https://accounts.spotify.com/authorize?';
@@ -22,7 +23,10 @@ function createLink() {
 
 export const load: PageServerLoad = ({ cookies }) => {
     const authLink = cookies.get('access_token') ? null : createLink();
+    
+    throw redirect(302, '/playlists');  // disable auto-sign in for this demo if not signed in to Spotify
+
     return  {
-        authLink: null  // disable auto-sign in for this demo if not signed in to Spotify
+        authLink  
     }
 }

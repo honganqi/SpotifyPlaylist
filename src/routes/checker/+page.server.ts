@@ -5,7 +5,7 @@ import { playlistIds } from "$lib/data/playlists.js";
 async function fetchAllPlaylists(playlistIds, access_token) {
     // Create an array of promises
     const fetchPromises = playlistIds.map(async (playlistItem) => {
-        const info = await playlist.getInfo(playlistItem.id, access_token);
+        const info = await playlist.getInfo(playlistItem.id, true, access_token);
         if (playlistItem.id == "4DMCvxOyFqjIZouFX0lWhF") {
             playlist.sort(playlistItem.id)
         }

@@ -7,10 +7,10 @@ export const actions: Actions = {
         playlist.sort(params.playlistId);
     },
     reset: async ({ params }) => {
-        playlist.reset(params.playlistId);
+        playlist.reset(params.playlistId, true);
     }
 } satisfies Actions;
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-    return await playlist.getInfo(params.playlistId, locals.access_token);
+    return await playlist.getInfo(params.playlistId, true, locals.access_token);
 }

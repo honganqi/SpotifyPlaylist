@@ -1,12 +1,6 @@
 <script>
-	import { goto } from '$app/navigation';
-
     const { data } = $props();
     const { authLink } = data;
-
-    if (!authLink) {
-        goto('/playlists');
-    }
 </script>
 
 {#if authLink}

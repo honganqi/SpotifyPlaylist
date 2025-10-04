@@ -33,21 +33,19 @@ export async function getAll(access_token) {
     return playlists;
 }
 
-export async function getInfo(playlistId, access_token) {
+export async function getInfo(playlistId, includeTracks = false, access_token) {
     playlist.set('access_token', access_token);
 
-    if (!playlist.get(playlistId)) {
-        await reset(playlistId);
+    if (!playlist.get(playlistId) || (includeTracks && !playlist.get(playlistId).tracks)) {
+        await reset(playlistId, includeTracks);
     }
 
     return playlist.get(playlistId);
 }
 
-export async function reset(playlistId) {
+export async function reset(playlistId, includeTracks = false) {
     const access_token = playlist.get('access_token');
     const playlistData = await api(`https://api.spotify.com/v1/playlists/${playlistId}`, access_token);
-    const tracksData = await getTracks(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, access_token).then(data => data.tracks);
-
     const info = {
         id: playlistData.id,
         image: playlistData.images ? playlistData.images[0].url : '',
@@ -57,6 +55,15 @@ export async function reset(playlistId) {
         total: playlistData.tracks.total
     }
 
+    if (!includeTracks) {
+        playlist.set(playlistId, {
+            info
+        })
+
+        return;
+    }
+
+    const tracksData = await getTracks(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, access_token).then(data => data.tracks);
     const tracks = tracksData.map(trackInfo => {
         return {
             title: trackInfo.track.name,
@@ -77,6 +84,7 @@ export async function reset(playlistId) {
         info,
         tracks
     })
+    return;
 }
 
 export async function sort(playlistId) {
@@ -130,10 +138,7 @@ export async function reorder() {
 export async function getAllGenshin(playlistIds, access_token) {
     // Create an array of promises
     const fetchPromises = playlistIds.map(async (playlistItem) => {
-        const playlistObj = await getInfo(playlistItem.id, access_token);
-        if (playlistItem.id == "4DMCvxOyFqjIZouFX0lWhF") {
-            sort(playlistItem.id)
-        }
+        const playlistObj = await getInfo(playlistItem.id, false, access_token);
 
         return {
             name: playlistObj.info.name,
@@ -142,9 +147,10 @@ export async function getAllGenshin(playlistIds, access_token) {
             ownerUrl: playlistObj.info.ownerUrl,
             ownerName: playlistObj.info.ownerName,
             total: playlistObj.info.total
-
         };
     });
+
+
 
     // Wait for all promises to resolve
     const results = await Promise.all(fetchPromises);
