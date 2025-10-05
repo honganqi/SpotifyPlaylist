@@ -1,9 +1,22 @@
 <script>
 	import { goto } from "$app/navigation";
-	import { Combobox } from "@skeletonlabs/skeleton-svelte";
+	import { Combobox, ProgressRing, Modal } from "@skeletonlabs/skeleton-svelte";
 
     const { data } = $props();
     const { items } = data;
+
+    const itemsPromise = Promise.resolve(items);
+
+    // Simulate a 3-second async fetch
+	// const itemsPromise = new Promise((resolve) => {
+	// 	setTimeout(() => {
+	// 		resolve([
+	// 			{ id: 1, name: "Playlist One" },
+	// 			{ id: 2, name: "Playlist Two" },
+	// 			{ id: 3, name: "Playlist Three" }
+	// 		]);
+	// 	}, 3000);
+	// });
 
     const searchPlaylist = items.map(playlistItem => {
         return {
@@ -18,6 +31,20 @@
 </script>
 
 <h1>Playlists</h1>
+{#await itemsPromise}
+    <Modal
+    open={true}
+    onOpenChange={(e) => (openState = e.open)}
+    triggerBase="btn preset-tonal"
+    contentBase="bg-none max-w-screen-sm"
+    backdropClasses="backdrop-blur-sm"
+    trapFocus={false}
+    >
+    {#snippet content()}
+    <ProgressRing value={null} size="size-36" meterStroke="stroke-primary-600-400" trackStroke="stroke-primary-50-950" strokeWidth="20px" />
+    {/snippet}
+    </Modal>
+{:then items}
 <Combobox data={searchPlaylist} placeholder="Search" onValueChange={goToPlaylist} openOnClick inputGroupClasses="mt-4 bg-surface-900" />
 {#if items}
 <ul id="playlists">
@@ -38,6 +65,11 @@
 {/each}
 </ul>
 {/if}
+
+{:catch error}
+    <p>Error: {error.message}</p> 
+    
+{/await}
 
 <style>
 #playlists { font-size: 1.2rem; }

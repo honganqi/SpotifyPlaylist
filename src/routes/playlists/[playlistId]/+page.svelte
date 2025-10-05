@@ -1,16 +1,43 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-    import { ProgressRing } from '@skeletonlabs/skeleton-svelte';
+    import { Modal, ProgressRing } from '@skeletonlabs/skeleton-svelte';
     
     let { data } = $props();
-    let formIsWorking = $state(false);
+    const { tracks } = data;
+
+    const itemsPromise = Promise.resolve(tracks);
+
+    // // Simulate a 3-second async fetch
+	// const itemsPromise = new Promise((resolve) => {
+	// 	setTimeout(() => {
+	// 		resolve([
+	// 			{ id: 1, name: "Playlist One" },
+	// 			{ id: 2, name: "Playlist Two" },
+	// 			{ id: 3, name: "Playlist Three" }
+	// 		]);
+	// 	}, 3000);
+	// });
+
     let simpleMode = $state(false);
-    let currentAlbum = '';
-
-
 </script>
 
 
+
+{#await itemsPromise}
+    <Modal
+    open={true}
+    onOpenChange={(e) => (openState = e.open)}
+    triggerBase="btn preset-tonal"
+    contentBase="bg-none max-w-screen-sm"
+    backdropClasses="backdrop-blur-sm"
+    trapFocus={false}
+    >
+    {#snippet content()}
+    <ProgressRing value={null} size="size-36" meterStroke="stroke-primary-600-400" trackStroke="stroke-primary-50-950" strokeWidth="20px" />
+    {/snippet}
+    </Modal>
+<h2>Fetching data</h2>
+{:then tracks}
 <div class="playlist-info">
     <img src={data.info.image} class="playlist-thumb" alt="thumbnail" />
     <div>
@@ -27,16 +54,8 @@
     {/if}
 </button>
 
-{#await data.tracks}
-<div id="loadingOverlay">
-    <ProgressRing value={null} size="size-14" meterStroke="stroke-primary-600-400" trackStroke="stroke-primary-50-950" />
-</div>
-<h2>Fetching data</h2>
-{:then}
-
-
 <ol>
-{#each data.tracks as track, index}
+{#each tracks as track, index}
     <!-- useful if playlist is split by albums
     {#if currentAlbum != track.album}
     {currentAlbum = track.album}
@@ -62,13 +81,6 @@
     </li>
 {/each}
 </ol>
-{/await}
-
-{#if formIsWorking}
-<div id="loadingOverlay">
-    <ProgressRing value={null} size="size-14" meterStroke="stroke-primary-600-400" trackStroke="stroke-primary-50-950" />
-</div>
-{/if}
 
 <form method="POST" action="?/sort" use:enhance>
     <button class="btn preset-filled" formaction="?/sort">Sort</button>
@@ -84,6 +96,12 @@
     </ul>
     <span class="badge preset-filled">Reset</span> the view to the original order in the playlist
 </div>
+
+
+{:catch error}
+    <p>Error: {error.message}</p>
+{/await}
+
 
 <style>
     .index { vertical-align: middle; }
