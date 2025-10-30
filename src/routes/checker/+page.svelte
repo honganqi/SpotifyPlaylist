@@ -41,7 +41,7 @@
                 <th></th>
                 {#each data.playlists as playlistItem}
                     {#if playlistItem.id != "4DMCvxOyFqjIZouFX0lWhF"}
-                    <th>{playlistItem.name}</th>
+                    <th><a href="/playlists/{playlistItem.id}">{playlistItem.name}</a></th>
                     {/if}
                 {/each}
             </tr>

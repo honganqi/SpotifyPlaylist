@@ -21,8 +21,6 @@
     let simpleMode = $state(false);
 </script>
 
-
-
 {#await itemsPromise}
     <Modal
     open={true}
@@ -38,13 +36,26 @@
     </Modal>
 <h2>Fetching data</h2>
 {:then tracks}
-<div class="playlist-info">
+<!-- <div class="playlist-info">
     <img src={data.info.image} class="playlist-thumb" alt="thumbnail" />
     <div>
         <h1 class="text-4xl">{data.info.name}</h1>
         by <a href={data.info.ownerUrl}>{data.info.ownerName}</a>            
     </div>
-</div>
+</div> -->
+
+<iframe
+    title="Spotify Player"
+    data-testid="embed-iframe"
+    style="border-radius:12px"
+    src="https://open.spotify.com/embed/playlist/{data.info.id}?utm_source=generator"
+    width="100%"
+    height="352"
+    frameBorder="0"
+    allowfullscreen="{true}"
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+    loading="lazy">
+</iframe>
 
 <button type="button" class="btn preset-filled-surface-500" onclick={() => (simpleMode = !simpleMode)}>
     {#if simpleMode}
