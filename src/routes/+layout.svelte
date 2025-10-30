@@ -1,11 +1,15 @@
 <script lang="ts">
-	import '../app.css';
-	import { Switch, ToastProvider, Popover, Avatar } from '@skeletonlabs/skeleton-svelte';
+	import './layout.css';
+	import favicon from '$lib/assets/paimon.png';
+	import { Avatar, Popover, Portal, Switch, AppBar, Navigation } from '@skeletonlabs/skeleton-svelte';
+	import { ListIcon, TableIcon } from '@lucide/svelte';
 	import { currentTheme } from '$lib/stores.js';
-	import { onMount } from 'svelte';
-
-	let { children, data } = $props();
+    import { onMount } from 'svelte';
 	
+	// load Svelte 5 store helper stuff
+	let { children, data } = $props();
+
+	// load list of themes from Skeleton including the icons they used in 2024 (dunno about now)
 	const themes = [
 		{ type: 'catppuccin', name: 'Catppuccin', icon: '🐈' },
 		{ type: 'cerberus', name: 'Cerberus', icon: '🐺' },
@@ -31,18 +35,15 @@
 		{ type: 'wintry', name: 'Wintry', icon: '🌨️' }
 	];
 
+	// theme / dark mode handling
 	let theme = $state(currentTheme);
 
 	$effect(() => {
-		document.body.setAttribute('data-theme', theme);
+		document.documentElement.setAttribute('data-theme', theme);
 	})
 
 	let darkMode = $state(false);
 
-	onMount(() => {
-		darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
-	});
-	
 	$effect(() => {
 		if (darkMode) {
 			document.documentElement.classList.add('dark')
@@ -50,70 +51,122 @@
 			document.documentElement.classList.remove('dark')
 		}
 	})
+
+	onMount(() => {
+		darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+	});
+
+	// styles
+	const anchorRail = 'btn hover:preset-tonal w-full max-w-[84px] flex flex-col items-center gap-0.5';
+	const anchorBar = 'btn hover:preset-tonal flex-col items-center gap-1';
 </script>
 
-{#if !data.authLink}
-<div class="grid h-screen grid-rows-[auto_1fr]">
-	<!-- Header -->
-	<header id="siteHeader" class="p-4 grid grid-cols-[auto_1fr_auto]">
-		<h1><a href="/">Playlist Checker</a></h1>
-		<div></div>
-		<div>
-			<Popover
-			positioning={{ placement: 'top' }}
-			contentBase="card bg-surface-900 p-4 space-y-4 max-w-[320px] min-w-[200px]"
-			arrow
-			arrowBackground="!bg-surface-900 dark:!bg-surface-900"
-			>
-			{#snippet trigger()}<Avatar name={data.username} size="size-10" />{/snippet}
-			{#snippet content()}
-			<ul id="popup" class="grid gap-4">
-				<li><h1>{data.username}</h1></li>
-				<div>
-					Theme
-					<select class="select" bind:value={theme}>
-						{#each themes as { icon, name, type }}
-							<option value={type}>{icon} {name}</option>
-						{/each}
-					</select>
-				</div>
-				<div class="flex justify-between items-center gap-4">
-					Dark Mode
-					<Switch name="darkMode" bind:checked={darkMode}></Switch>
-				</div>
-				<hr class="opacity-30">
-				<li><a href="/signOut">Sign Out</a></li>
-			</ul>
-			{/snippet}
-			</Popover>
-		</div>
-	</header>
-	<ToastProvider>
-		<!-- Grid Columns -->
-		<div class="grid grid-cols-1 md:grid-cols-[auto_1fr]">
-			<!-- Left Sidebar -->
-			<aside class="p-2">
-				<ul>
-					<li><a href="/playlists">Playlists</a></li>
-					<li><a href="/checker">Checker</a></li>
-				</ul>
-			</aside>
-			<!-- Main Content -->
-			<main class="space-y-4 bg-surface-800 p-4">
-				{@render children()}
-			</main>
-		</div>
-	</ToastProvider>
-	<!-- Footer -->
-	<!-- <footer class="bg-blue-500 p-4">(footer)</footer> -->
-</div>
-{:else}
-<div class="flex flex-col h-screen text-center align-middle items-center justify-center">
-	<a href={data.authLink} id="loginButton"><div class="card rounded p-4 w-full text-center min-w-[320px]">Log in with <img src="img/logo-consumer-v2.svg" alt="login button" /></div></a>
-</div>
-{/if}
+<svelte:head>
+	<link rel="icon" href={favicon} />
+	<title>Genshin Playlist Table</title>
+</svelte:head>
 
-<style>
-#popup li a { display: block; }
-#loginButton > div { font-weight: bold; background: #1ed760; }
-</style>
+
+<div class="grid h-screen grid-rows-[auto_1fr_auto]">
+	<AppBar>
+		<AppBar.Toolbar class="grid-cols-[auto_1fr_auto]">
+			<AppBar.Lead>
+				<!-- <button type="button" class="btn-icon btn-icon-lg hover:preset-tonal" aria-label="Home"><img src="img/paimon.png" alt="The icon (whether you like it or not)" /></button> -->
+			</AppBar.Lead>
+			<AppBar.Headline>
+				<h1 class="h3"><a href="/">Genshin Spotify Table</a></h1>
+			</AppBar.Headline>
+			<AppBar.Trail>
+				<Popover>
+					<Popover.Trigger>
+						<Avatar class="size-10">
+							<Avatar.Image src={favicon} alt="User Avatar" />
+							<Avatar.Fallback>{data.username}</Avatar.Fallback>
+						</Avatar>
+					</Popover.Trigger>
+					<Portal>
+						<Popover.Positioner>
+							<Popover.Content class="card p-4 bg-surface-100-900 shadow-xl">
+								<ul id="popup" class="grid gap-4">
+									<!-- <li><h1>{data.username}</h1></li> -->
+									<div>
+										Theme
+										<select class="select" bind:value={theme}>
+											{#each themes as { icon, name, type }}
+												<option value={type}>{icon} {name}</option>
+											{/each}
+										</select>
+									</div>
+									<div class="flex justify-between items-center gap-4">
+										<!-- <Switch name="darkMode" bind:checked={darkMode}></Switch> -->
+										<Switch checked={darkMode} onchange={() => {
+											darkMode = !darkMode;}}>
+											<Switch.Label>Dark Mode</Switch.Label>
+											<Switch.Control>
+												<Switch.Thumb />
+											</Switch.Control>
+											<Switch.HiddenInput />
+										</Switch>
+									</div>
+									<hr class="opacity-30">
+								</ul>
+							</Popover.Content>
+						</Popover.Positioner>
+					</Portal>
+				</Popover>
+			</AppBar.Trail>
+		</AppBar.Toolbar>
+	</AppBar>   
+
+
+	<!-- Grid Columns -->
+	<div class="grid grid-cols-1 md:grid-cols-[auto_1fr]">
+		<!-- Left Sidebar. -->
+		<aside class="sticky top-0 col-span-1 h-screen hidden md:block ">
+			<Navigation layout="sidebar" class="w-auto">
+				<Navigation.Content>
+					<Navigation.Group>
+						<Navigation.Menu>
+							<a class={anchorRail} href="/playlists">
+								<ListIcon class="size-5" />
+								<span class="text-xs">Playlists</span>
+							</a>
+						</Navigation.Menu>
+						<Navigation.Menu>
+							<a class={anchorRail} href="/table">
+								<TableIcon class="size-5" />
+								<span class="text-xs">Compare</span>
+							</a>
+						</Navigation.Menu>
+					</Navigation.Group>
+				</Navigation.Content>
+			</Navigation>	
+		</aside>
+
+		<!-- Main Content -->
+		<main class="space-y-4 p-4 pb-0">
+			{@render children()}
+		</main>
+
+		<Navigation layout="bar" class="hidden max-md:block sticky bottom-0 z-10 backdrop-blur-sm p-4">
+			<Navigation.Content>
+				<Navigation.Group>
+					<Navigation.Menu class="grid grid-cols-2 gap-2">
+						<a class={anchorBar} href="/playlists">
+							<ListIcon class="size-5" />
+							<span class="text-xs">Playlists</span>
+						</a>
+						<a class={anchorBar} href="/table">
+							<TableIcon class="size-5" />
+							<span class="text-xs">Compare</span>
+						</a>
+					</Navigation.Menu>
+				</Navigation.Group>
+			</Navigation.Content>
+		</Navigation>
+	</div>
+
+	<!-- Footer -->
+	<footer class="p-4 text-xs"><div class="text-right">Genshinly made with <a href="https://svelte.dev/">Svelte 5</a> + <a href="https://www.skeleton.dev/">Skeleton</a></div></footer>		
+</div>
+

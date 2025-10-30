@@ -1,48 +1,35 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-    import { Modal, ProgressRing } from '@skeletonlabs/skeleton-svelte';
+	import { page } from '$app/stores';
+    import { ArrowDownUpIcon, RefreshCcw } from '@lucide/svelte';
+    import { Progress } from '@skeletonlabs/skeleton-svelte';
     
+    let tracks = $state([]);
     let { data } = $props();
-    const { tracks } = data;
+    tracks = data.tracks;
 
     const itemsPromise = Promise.resolve(tracks);
+    const playlistId = $page.params.playlistId;
 
-    // // Simulate a 3-second async fetch
-	// const itemsPromise = new Promise((resolve) => {
-	// 	setTimeout(() => {
-	// 		resolve([
-	// 			{ id: 1, name: "Playlist One" },
-	// 			{ id: 2, name: "Playlist Two" },
-	// 			{ id: 3, name: "Playlist Three" }
-	// 		]);
-	// 	}, 3000);
-	// });
+    let loading = $state(false);
+
+	async function sortTracks() {
+        loading = true;
+		const res = await fetch(`/playlists/${playlistId}/sort.json`);
+		const data = await res.json();
+		tracks = data;
+        loading = false;
+	}
+
+    async function resetTracks() {
+        loading = true;
+        const res = await fetch(`/playlists/${playlistId}/reset.json`);
+        const data = await res.json();
+        tracks = data;
+        loading = false;
+    }
 
     let simpleMode = $state(false);
 </script>
-
-{#await itemsPromise}
-    <Modal
-    open={true}
-    onOpenChange={(e) => (openState = e.open)}
-    triggerBase="btn preset-tonal"
-    contentBase="bg-none max-w-screen-sm"
-    backdropClasses="backdrop-blur-sm"
-    trapFocus={false}
-    >
-    {#snippet content()}
-    <ProgressRing value={null} size="size-36" meterStroke="stroke-primary-600-400" trackStroke="stroke-primary-50-950" strokeWidth="20px" />
-    {/snippet}
-    </Modal>
-<h2>Fetching data</h2>
-{:then tracks}
-<!-- <div class="playlist-info">
-    <img src={data.info.image} class="playlist-thumb" alt="thumbnail" />
-    <div>
-        <h1 class="text-4xl">{data.info.name}</h1>
-        by <a href={data.info.ownerUrl}>{data.info.ownerName}</a>            
-    </div>
-</div> -->
 
 <iframe
     title="Spotify Player"
@@ -57,14 +44,40 @@
     loading="lazy">
 </iframe>
 
-<button type="button" class="btn preset-filled-surface-500" onclick={() => (simpleMode = !simpleMode)}>
+{#await itemsPromise}
+<div id="loadingOverlay">
+<Progress class="flex justify-center items-center z-10 top-1/2 left-1/2" value={null}>
+	<Progress.Circle>
+		<Progress.CircleTrack />
+		<Progress.CircleRange />
+	</Progress.Circle>
+	<Progress.ValueText />
+</Progress>
+</div>
+<h2>Fetching data</h2>
+{/await}
+
+{#if loading}
+<div id="loadingOverlay">
+<Progress class="flex justify-center items-center z-10 top-1/2 left-1/2" value={null}>
+	<Progress.Circle>
+		<Progress.CircleTrack />
+		<Progress.CircleRange />
+	</Progress.Circle>
+	<Progress.ValueText />
+</Progress>
+</div>
+{/if}
+
+
+{#if tracks}
+<button type="button" class="btn btn-sm preset-filled-surface-500" onclick={() => (simpleMode = !simpleMode)}>
     {#if simpleMode}
     Switch to full view
     {:else}
     Switch to simple view
     {/if}
 </button>
-
 <ol>
 {#each tracks as track, index}
     <!-- useful if playlist is split by albums
@@ -93,25 +106,19 @@
 {/each}
 </ol>
 
-<form method="POST" action="?/sort" use:enhance>
-    <button class="btn preset-filled" formaction="?/sort">Sort</button>
-    <button class="btn preset-filled" formaction="?/reset">Reset</button>
-</form>
+<button class="btn btn-sm preset-filled" type="button" onclick={sortTracks}><ArrowDownUpIcon class="size-5" /> Sort</button>
+<button class="btn btn-sm preset-filled" type="button" onclick={resetTracks}><RefreshCcw class="size-5" /> Reset</button>
 
-<div class="p-4 rounded text-surface bg-primary-200-800">
-    <span class="badge preset-filled">Sort</span> the playlist in the following order:
+<div class="p-4 rounded text-surface bg-primary-50-950">
+    <span class="badge preset-filled"><ArrowDownUpIcon class="size-5" /> Sort</span> the playlist in the following order:
     <ul class="list-inside list-decimal ms-4">
         <li>album's release date</li>
         <li>disc number in the album</li>
         <li>track number in the disc</li>
     </ul>
-    <span class="badge preset-filled">Reset</span> the view to the original order in the playlist
+    <span class="badge preset-filled"><RefreshCcw class="size-5" /> Reset</span> the view to the original order in the playlist
 </div>
-
-
-{:catch error}
-    <p>Error: {error.message}</p>
-{/await}
+{/if}
 
 
 <style>

@@ -1,6 +1,6 @@
 <script>
 	import { goto } from "$app/navigation";
-	import { Combobox, ProgressRing, Modal } from "@skeletonlabs/skeleton-svelte";
+	import { Combobox, Progress } from "@skeletonlabs/skeleton-svelte";
 
     const { data } = $props();
     const { items } = data;
@@ -30,22 +30,18 @@
     }
 </script>
 
-<h1>Playlists</h1>
+<h1 class="h2">Playlists</h1>
 {#await itemsPromise}
-    <Modal
-    open={true}
-    onOpenChange={(e) => (openState = e.open)}
-    triggerBase="btn preset-tonal"
-    contentBase="bg-none max-w-screen-sm"
-    backdropClasses="backdrop-blur-sm"
-    trapFocus={false}
-    >
-    {#snippet content()}
-    <ProgressRing value={null} size="size-36" meterStroke="stroke-primary-600-400" trackStroke="stroke-primary-50-950" strokeWidth="20px" />
-    {/snippet}
-    </Modal>
+<div id="loadingOverlay">
+<Progress class="flex justify-center items-center z-10 top-1/2 left-1/2" value={null}>
+	<Progress.Circle>
+		<Progress.CircleTrack />
+		<Progress.CircleRange />
+	</Progress.Circle>
+	<Progress.ValueText />
+</Progress>
+</div>
 {:then items}
-<Combobox data={searchPlaylist} placeholder="Search" onValueChange={goToPlaylist} openOnClick inputGroupClasses="mt-4 bg-surface-900" />
 {#if items}
 <ul id="playlists">
 {#each items as playlistItem}

@@ -1,5 +1,5 @@
 <script>
-    import { ProgressRing } from '@skeletonlabs/skeleton-svelte';
+    import { Progress } from '@skeletonlabs/skeleton-svelte';
 
     let { data } = $props();
 
@@ -10,7 +10,7 @@
 
 </script>
 
-<h1>Checker</h1>
+<h1 class="h2">Comparison Table</h1>
 
 {#if data.error}
 {#if data.error == "no-items"}
@@ -29,14 +29,20 @@
 {/if}
 {#await data.tracks}
 <div id="loadingOverlay">
-    <ProgressRing value={null} size="size-14" meterStroke="stroke-primary-600-400" trackStroke="stroke-primary-50-950" />
+<Progress class="flex justify-center items-center z-10 top-1/2 left-1/2" value={null}>
+	<Progress.Circle>
+		<Progress.CircleTrack />
+		<Progress.CircleRange />
+	</Progress.Circle>
+	<Progress.ValueText />
+</Progress>
 </div>
 <h2>Fetching data</h2>
 {:then}
 {#if data.tracks}
 <div class="h-full">
     <table class="table">
-        <thead class="sticky top-0 bg-surface-400-600">
+        <thead class="sticky top-0">
             <tr>
                 <th></th>
                 {#each data.playlists as playlistItem}
@@ -46,7 +52,7 @@
                 {/each}
             </tr>
         </thead>
-        <tbody class="overflow-y-auto">
+        <tbody class="[&>tr]:hover:preset-tonal-primary">
             {#each data.tracks as track, index}
             <tr>
                 <td>
@@ -78,7 +84,7 @@
 
 <style>
 .table th { text-align: center; color: #fff; font-weight: bold; }
-tbody td { border-width: var(--border-width-default); border-color: rgba(255, 255, 255, 0.3); }
+tbody td { border-width: 1px; border-color: rgba(255, 255, 255, 0.3); }
 tbody td > div { display: inline-block; margin-right: 10px; vertical-align: middle; }
 .album-art { border-radius: 6px; }
 .track-name { font-size: 1.3em; font-weight: bold; }

@@ -16,23 +16,6 @@ async function getTracks(nextUrl, access_token) {
     };
 }
 
-export async function getAll(access_token) {
-    const playlistsData = await api(`https://api.spotify.com/v1/me/playlists`, access_token);
-
-    const playlists = playlistsData.items.map(playlistItem => {
-        return {
-            id: playlistItem.id,
-            image: playlistItem.images ? playlistItem.images[0].url : '',
-            name: playlistItem.name,
-            ownerUrl: playlistItem.owner.href,
-            ownerName: playlistItem.owner.display_name,
-            total: playlistItem.tracks.total
-        }
-    })
-
-    return playlists;
-}
-
 export async function getInfo(playlistId, includeTracks = false, access_token) {
     playlist.set('access_token', access_token);
 
@@ -84,10 +67,20 @@ export async function reset(playlistId, includeTracks = false) {
         info,
         tracks
     })
-    return;
+    return {
+        info,
+        tracks
+    };
 }
 
 export async function sort(playlistId) {
+    if (!playlist) {
+        console.log('not found')
+    }
+    if (!playlist.get(playlistId) || !playlist.get(playlistId).tracks) {
+        console.log('sort: not set, getting')
+        await reset(playlistId, true);
+    }
     const { tracks } = playlist.get(playlistId);
 
     /**
@@ -116,6 +109,8 @@ export async function sort(playlistId) {
         info,
         tracks: sorted
     });
+
+    console.log('sorted')
     
     return sorted;
 }
